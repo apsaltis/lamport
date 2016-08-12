@@ -46,5 +46,5 @@ func action(c string) error {
 	if err != nil {
 		return fmt.Errorf("Error processing config file: %s", err)
 	}
-	return node.Start(node.New(config))
+	return node.Run(node.New(config))
 }

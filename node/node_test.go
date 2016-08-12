@@ -17,7 +17,7 @@ type testnode struct {
 	ch chan bool
 }
 
-func (tn testnode) Run(sigCh chan bool) {
+func (tn testnode) run(sigCh chan bool) {
 	<-sigCh
 	sigCh <- true
 	tn.ch <- true
@@ -26,7 +26,7 @@ func (tn testnode) Run(sigCh chan bool) {
 func TestStart(t *testing.T) {
 	ch := make(chan bool)
 	tn := testnode{ch: ch}
-	go Start(tn)
+	go Run(tn)
 	time.Sleep(1 * time.Second)
 	p, err := os.FindProcess(os.Getpid())
 	if err != nil {
@@ -54,7 +54,7 @@ func TestRun(t *testing.T) {
 	}
 
 	ch := make(chan bool)
-	go n.Run(ch)
+	go n.run(ch)
 	time.Sleep(1 * time.Second)
 	ch <- true
 	<-ch

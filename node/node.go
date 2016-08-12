@@ -10,7 +10,7 @@ import (
 
 // Runner runs until signalled to stop by sigCh
 type Runner interface {
-	Run(sigCh chan bool)
+	run(sigCh chan bool)
 }
 
 type node struct {
@@ -19,9 +19,9 @@ type node struct {
 
 // Start starts a new lamport node using the supplied
 // Runner
-func Start(r Runner) error {
+func Run(r Runner) error {
 	sigCh := make(chan bool)
-	go r.Run(sigCh)
+	go r.run(sigCh)
 
 	// handle SIGINT, notify node, wait for confirm to exit
 	c := make(chan os.Signal, 1)
@@ -35,12 +35,12 @@ func Start(r Runner) error {
 }
 
 // New creates a Runner that can be used to
-// start a Lamport node
+// run a Lamport node
 func New(conf config.Config) Runner {
 	return node{conf: conf}
 }
 
-func (n node) Run(sigCh chan bool) {
+func (n node) run(sigCh chan bool) {
 	sig := <-sigCh
 	if sig {
 		sigCh <- true
