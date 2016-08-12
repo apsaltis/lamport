@@ -1,6 +1,9 @@
 package config
 
 import (
+	"errors"
+	"os"
+
 	"github.com/BurntSushi/toml"
 )
 
@@ -13,6 +16,11 @@ type Config struct {
 // ReadConfig returns a Config created from the supplied config file
 func ReadConfig(configFile string) (Config, error) {
 	var config Config
+
+	_, err := os.Stat(configFile)
+	if err != nil {
+		return config, errors.New("Config file missing")
+	}
 
 	if _, err := toml.DecodeFile(configFile, &config); err != nil {
 		return config, err
