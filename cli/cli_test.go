@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"os"
 	"testing"
+	"time"
 
 	"github.com/urfave/cli"
 )
@@ -65,7 +67,7 @@ func TestGetApp(t *testing.T) {
 	}
 
 	if app.Action == nil {
-		t.Fatalf("Expected an 'Action' for the app, but found nil")
+		t.Fatal("Expected an 'Action' for the app, but found nil")
 	}
 }
 
@@ -74,4 +76,16 @@ func TestAction(t *testing.T) {
 	if err == nil {
 		t.Fatal("Expected error when supplying bad config file name to 'action'")
 	}
+	go sndIntrpt(1 * time.Second)
+	err = action("../lamport.toml")
+	if err != nil {
+		t.Fatalf("Error encountered running cli 'action': %s", err)
+	}
+}
+
+func sndIntrpt(d time.Duration) {
+	<-time.After(d)
+
+	p, _ := os.FindProcess(os.Getpid())
+	p.Signal(os.Interrupt)
 }

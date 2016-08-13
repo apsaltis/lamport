@@ -2,6 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 
 	"github.com/Distributed-Computing-Denver/lamport/config"
 	"github.com/Distributed-Computing-Denver/lamport/node"
@@ -46,5 +48,18 @@ func action(c string) error {
 	if err != nil {
 		return fmt.Errorf("Error processing config file: %s", err)
 	}
-	return node.Run(node.New(config))
+	n := node.New(config)
+	sigCh := make(chan bool)
+	go n.Run(sigCh)
+
+	// handle SIGINT
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, os.Interrupt)
+	<-ch
+
+	// notify node, wait for confirmation
+	sigCh <- true
+	<-sigCh
+
+	return nil
 }
